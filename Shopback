@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ShopBack — Cashback Guaranteed</title>
+<style>
+  :root{
+    --red:#D0021B; --ink:#1a1a1a; --grey:#5a5a5a; --light:#f4f4f4; --line:#e2e2e2;
+    --green:#1a8f4a; --amber:#c8890a;
+  }
+  *{box-sizing:border-box; font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;}
+  body{margin:0; background:#fafafa; color:var(--ink);}
+  header{background:#fff; border-bottom:3px solid var(--red); padding:20px 32px;}
+  header h1{margin:0; font-size:22px;} header h1 span{color:var(--red);}
+  header p{margin:4px 0 0; color:var(--grey); font-size:14px;}
+  .search{max-width:1000px; margin:24px auto 0; padding:0 24px;}
+  .search input{width:100%; padding:14px 18px; font-size:16px; border:2px solid var(--line); border-radius:10px;}
+  .sortbar{max-width:1000px; margin:14px auto 0; padding:0 24px; display:flex; gap:10px; align-items:center; font-size:13px; color:var(--grey);}
+  .sortbar button{border:1px solid var(--line); background:#fff; padding:7px 14px; border-radius:20px; cursor:pointer; font-size:13px;}
+  .sortbar button.active{background:var(--ink); color:#fff; border-color:var(--ink);}
+  .cards{max-width:1000px; margin:20px auto 40px; padding:0 24px; display:grid; gap:16px;}
+  .card{background:#fff; border:1px solid var(--line); border-radius:14px; padding:18px 20px; display:grid; grid-template-columns:64px 1fr auto; gap:16px; align-items:center; position:relative;}
+  .card.sponsored{border-color:#f0d199;}
+  .badge-sponsored{position:absolute; top:-10px; left:16px; background:#fff3d6; color:#8a6100; font-size:10px; font-weight:700; padding:3px 8px; border-radius:6px; letter-spacing:.04em;}
+  .logo{width:56px; height:56px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:700; color:#fff; font-size:12px;}
+  .name{font-weight:600; font-size:15px;} .meta{color:var(--grey); font-size:12.5px; margin-top:2px;}
+  .prices{display:flex; gap:22px; align-items:baseline; margin-top:8px;}
+  .price-list{color:var(--grey); font-size:13px; text-decoration:line-through;}
+  .price-true{font-size:20px; font-weight:700;}
+  .price-true small{font-size:12px; font-weight:500; color:var(--grey);}
+  .chips{display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;}
+  .chip{font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px; display:inline-flex; align-items:center; gap:5px;}
+  .chip-guaranteed{background:#e8f6ee; color:var(--green); border:1px solid #b7e3c8;}
+  .chip-standard{background:var(--light); color:var(--grey); border:1px solid var(--line);}
+  .chip-quality{background:#fdecea; color:#a12622; border:1px solid #f3c6c1;}
+  .why{font-size:11.5px; color:var(--red); cursor:pointer; margin-top:8px; text-decoration:underline; display:inline-block;}
+  .why-panel{display:none; grid-column:1/-1; background:var(--light); border-radius:10px; padding:12px 16px; font-size:13px; color:#333; margin-top:6px;}
+  .why-panel.open{display:block;}
+  .side{text-align:right; min-width:150px;}
+  .btn{margin-top:10px; background:var(--red); color:#fff; border:none; padding:8px 16px; border-radius:8px; font-size:13px; cursor:pointer; font-weight:600;}
+  footer{max-width:1000px; margin:0 auto 60px; padding:0 24px; color:var(--grey); font-size:12px; line-height:1.6;}
+  .key{max-width:1000px; margin:0 auto; padding:0 24px 4px; font-size:12px; color:var(--grey); display:flex; gap:18px; flex-wrap:wrap;}
+  .key span{display:inline-flex; align-items:center; gap:6px;}
+  .dot{width:9px; height:9px; border-radius:50%; display:inline-block;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Shop<span>Back</span> — Cashback Guaranteed</h1>
+  <p>Compare the same product across every marketplace you shop on. Where cashback confirmation is highly likely, ShopBack guarantees it, even if the merchant never confirms.</p>
+</header>
+
+<div class="search">
+  <input type="text" value="Bear cartoon phone case, iPhone 15" readonly>
+</div>
+
+<div class="key">
+  <span><span class="dot" style="background:var(--green)"></span> Cashback Guaranteed — confirmation-probability model, paid by ShopBack even if merchant disputes</span>
+  <span><span class="dot" style="background:var(--grey)"></span> Standard — confirmation follows normal merchant timelines</span>
+  <span><span class="dot" style="background:#a12622"></span> Listing quality flag — separate signal, does not affect guarantee status</span>
+</div>
+
+<div class="sortbar">
+  <span>Sort:</span>
+  <button class="active" onclick="setSort(this,'true')">True lowest cost</button>
+  <button onclick="setSort(this,'guar')">Guaranteed first</button>
+  <button onclick="setSort(this,'price')">Listed price</button>
+</div>
+
+<div class="cards" id="cards"></div>
+
+<footer>
+  Illustrative mock data for demonstration only. "True price" = list price − applicable cashback − live voucher.
+  "Cashback Guaranteed" reflects a confirmation-probability model built on merchant reconciliation history, deep-link path integrity, and category dispute rates —
+  it does not use listing-quality signals (material claims, seller consistency), which are shown separately and never affect guarantee eligibility.
+</footer>
+
+<script>
+const data = [
+  {
+    merchant: "Lazada", logoColor: "#0f156d", seller: "Sold by: BearCaseSG",
+    listPrice: 15.90, cashbackPct: 8, voucher: 1.00,
+    guaranteed: true,
+    why: "Guaranteed: this seller/category pairing has a strong merchant reconciliation history, a reliable in-app deep-link path, and a low category dispute rate — the model's confidence clears the guarantee threshold. If Lazada never confirms this commission, ShopBack pays the cashback anyway.",
+    sponsored: false,
+  },
+  {
+    merchant: "Shopee", logoColor: "#ee4d2d", seller: "Sold by: CutePhoneCasesOfficial",
+    listPrice: 13.50, cashbackPct: 6, voucher: 0,
+    guaranteed: false,
+    qualityFlag: "Listing flag: \"genuine leather\" + \"machine washable\" — contradictory material claim",
+    why: "Not guaranteed: this falls below the confidence threshold on confirmation mechanics alone (deep-link and reconciliation history), independent of the listing-quality flag below. The quality flag is shown separately because it predicts product quality, not payout reliability, and does not affect this status.",
+    sponsored: false,
+  },
+  {
+    merchant: "Amazon SG", logoColor: "#131921", seller: "Sold by: Amazon SG (1P retail)",
+    listPrice: 19.90, cashbackPct: 4, voucher: 0,
+    guaranteed: true,
+    why: "Guaranteed: direct first-party retail listings confirm through a very reliable path with almost no dispute history, comfortably clearing the threshold. This listing is also a paid featured placement, shown alongside, not instead of, the true lowest-cost result.",
+    sponsored: true,
+  },
+];
+
+function effective(d){ return (d.listPrice - (d.listPrice*d.cashbackPct/100) - d.voucher); }
+
+function render(sortMode){
+  const list = [...data];
+  if(sortMode==='true') list.sort((a,b)=> effective(a)-effective(b));
+  if(sortMode==='guar') list.sort((a,b)=> (b.guaranteed - a.guaranteed) || (effective(a)-effective(b)));
+  if(sortMode==='price') list.sort((a,b)=> a.listPrice-b.listPrice);
+
+  document.getElementById('cards').innerHTML = list.map((d,i)=>`
+    <div class="card ${d.sponsored?'sponsored':''}">
+      ${d.sponsored?'<div class="badge-sponsored">SPONSORED PLACEMENT</div>':''}
+      <div class="logo" style="background:${d.logoColor}">${d.merchant.slice(0,2).toUpperCase()}</div>
+      <div>
+        <div class="name">${d.merchant}</div>
+        <div class="meta">${d.seller}</div>
+        <div class="prices">
+          <span class="price-list">S$${d.listPrice.toFixed(2)}</span>
+          <span class="price-true">S$${effective(d).toFixed(2)} <small>true price after cashback${d.voucher?' + voucher':''}</small></span>
+        </div>
+        <div class="chips">
+          ${d.guaranteed
+            ? '<span class="chip chip-guaranteed">✓ Cashback Guaranteed</span>'
+            : '<span class="chip chip-standard">Standard confirmation</span>'}
+          ${d.qualityFlag ? `<span class="chip chip-quality">⚠ Listing quality flag</span>` : ''}
+        </div>
+        <div class="why" onclick="toggle(${i})">Why this status?</div>
+        <div class="why-panel" id="why-${i}">${d.why}${d.qualityFlag ? '<br><br><b>Separately:</b> '+d.qualityFlag : ''}</div>
+      </div>
+      <div class="side">
+        <button class="btn">Buy via ShopBack</button>
+      </div>
+    </div>
+  `).join('');
+}
+function toggle(i){ document.getElementById('why-'+i).classList.toggle('open'); }
+function setSort(btn, mode){
+  document.querySelectorAll('.sortbar button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  render(mode);
+}
+render('true');
+</script>
+</body>
+</html>
